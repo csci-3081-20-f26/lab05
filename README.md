@@ -255,165 +255,78 @@ For **Milestone 2** you should be able to access and run queries on the database
 
 ---
 
-## Querying database
+## Milestone 3: Make API Calls
 
-All API verification for this lab must be done through a custom Python CLI client that uses `httpx`. Do not rely on `curl`, browser clicks, or Swagger UI for your final evidence.
+For Milestone 3, we will explore several methods to make API calls to the `api` service container.  The code for the API (the `./app/` folder) uses the repository pattern to handle CRUD (**C**reate, **R**ead, **U**pdate, **D**elete) operations.
 
-Create `client.py` in the `lab05` directory. It should support commands similar to:
+**Note:** Do not worry too much about how this is implemented.  The code is fairly complicated.  It is not necessary to use the repository pattern, but it is one standard that is implemented in the industry, so it is worth exploring.  In the future, we will create our own APIs and learn how to access databases.  However, at this time, you are welcome to explore the code and make changes, but understanding the code is not a requirement for this lab.
 
-```bash
-python client.py students list
-python client.py students create --first-name Mae --last-name Jemison --email mae.jemison@example.edu --major Engineering --credits 64
-python client.py students update 6 --first-name Mae --last-name Jemison --email mae.jemison@example.edu --major Computer Science --credits 80 --active true
-python client.py students delete 6
-python client.py courses list
-python client.py enrollments list
+### Use Swagger
+
+We will start by using the FastAPI Swagger environment.  This debugging tool is built into the FastAPI python library.  Since we are using this for our API, it comes for free when we setup our API endpoints.
+
+Navigate to the following:
+* http://localhost:8000/docs
+
+You will see a list of web service endpoints you can call.
+
+**Try out the following:**
+
+* `GET /db/students` - List the students in the database.
+* `POST /db/students` - Add a new student.
+* `GET /db/students` - Verify the new student appears.
+
+**Create a course and add a student:**
+
+Use the Swagger environment to create a new course and enroll the student you just created into the course.  You will need to do the following:
+
+1. Get the id of the student you created.
+2. Create a course.
+3. Get the id of the course you created.
+4. Enroll the student in the course using the id of each.
+
+### Use Curl
+
+You can use the command line to run these commands.  Notice that when you run a method using Swagger, it also gives you the Curl command for calling the web service.  Here are examples below:
+
+Listing Students:
+
+```
+curl -X 'GET' \
+  'http://localhost:8000/db/students' \
+  -H 'accept: */*'
 ```
 
-Minimum CLI requirements:
+Adding a new Student:
 
-- Use `httpx.Client` or `httpx.AsyncClient`.
-- Accept a configurable base URL with a default of `http://localhost:8000`.
-- Print formatted JSON for every response.
-- Exit with a non-zero status code when the API returns an error status.
-- Include at least one command for each required CRUD operation.
-
-## API Requirements
-
-Implement or verify these endpoint groups:
-
-```text
-GET    /db/students
-POST   /db/students
-PUT    /db/students/{student_id}
-DELETE /db/students/{student_id}
-
-GET    /db/courses
-POST   /db/courses
-PUT    /db/courses/{course_id}
-DELETE /db/courses/{course_id}
-
-GET    /db/enrollments
-POST   /db/enrollments
-PUT    /db/enrollments/{enrollment_id}
-DELETE /db/enrollments/{enrollment_id}
+```
+curl -X 'POST' \
+  'http://localhost:8000/db/students' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "first_name": "Bob",
+  "last_name": "Smith",
+  "email": "bob@example.edu",
+  "major": "None",
+  "credits": 0,
+  "active": true
+}'
 ```
 
-The starter code already includes DTOs, repository patterns, service methods, and several read/create/update routes. Add the missing delete path through the same route -> service -> repository structure. Keep SQL parameterized; do not build SQL by concatenating user input.
+Try calling the web service using the `curl` application.
 
-## CRUD: Read Query
+---
 
-Use the CLI client to read seeded data:
+For **Milestone 3** show that you created a student and enrolled them in a new course using the API (Swagger or curl).
 
-```bash
-python client.py students list
-python client.py courses list
-python client.py enrollments list
-```
+---
 
-Required evidence:
+## Milestone 4 - Use a Custom Python Client
 
-- The students response includes seeded students from `sql/v1.sql`.
-- The courses response includes course codes such as `CSCI 3081`.
-- The enrollments response includes nested student and course data.
+For Milestone 4, we will use a custom Python CLI client that uses `httpx`.  In the `lab05` directory, there is a `client.py`. You can use this client to call the API using Python.  Explore the code and understand where and how the API is being called.
 
-## CRUD: Write Query -> Read Query
-
-Create one new student:
-
-```bash
-python client.py students create --first-name Mae --last-name Jemison --email mae.jemison@example.edu --major Engineering --credits 64
-```
-
-Then read students again:
-
-```bash
-python client.py students list
-```
-
-Required evidence:
-
-- The create response returns a new `id`.
-- The follow-up read includes the new student.
-- The database assigns `created_at`.
-
-## CRUD: Update Query -> Read Query
-
-Update the student you created:
-
-```bash
-python client.py students update 6 --first-name Mae --last-name Jemison --email mae.jemison@example.edu --major Computer Science --credits 80 --active true
-```
-
-Then read students again:
-
-```bash
-python client.py students list
-```
-
-Required evidence:
-
-- The update response contains the changed fields.
-- The follow-up read shows the same changed fields.
-- Updating an unknown id returns `404`.
-
-## CRUD: Delete Query -> Read Query
-
-Delete the student you created:
-
-```bash
-python client.py students delete 6
-```
-
-Then read students again:
-
-```bash
-python client.py students list
-```
-
-Required evidence:
-
-- The delete response identifies the deleted row or returns a success message.
-- The follow-up read no longer includes that student.
-- Deleting an unknown id returns `404`.
-
-## Implementation Requirements
-
-Your final submission must include:
-
-- A working FastAPI app that starts without tracebacks.
-- PostgreSQL schema and seed data loaded from `sql/v1.sql`.
-- Read, create, update, and delete routes for at least students.
-- Read routes for courses and enrollments.
-- A custom `httpx` CLI client named `client.py`.
-- Parameterized SQL in all repository methods.
-- JSON responses for every API route.
-- Read-after-write evidence for create, update, and delete.
-
-Stretch goal: implement full CRUD for courses and enrollments using the same patterns as students.
-
-## Suggested Checkoff Script
-
-Before asking for checkoff, run:
-
-```bash
-docker compose down -v
-docker compose up --build
-docker compose exec -T db psql -U lab05 -d lab05 < sql/v1.sql
-python client.py students list
-python client.py students create --first-name Mae --last-name Jemison --email mae.jemison@example.edu --major Engineering --credits 64
-python client.py students list
-python client.py students update 6 --first-name Mae --last-name Jemison --email mae.jemison@example.edu --major Computer Science --credits 80 --active true
-python client.py students list
-python client.py students delete 6
-python client.py students list
-```
-
-If those commands complete and the JSON output proves each database change, the lab satisfies the core requirements.
-
-## Starter `client.py`
-
-The repository includes an initial `client.py` that supports the core checkoff commands:
+**Try out the client:**
 
 ```bash
 python client.py students list
@@ -424,4 +337,13 @@ python client.py courses list
 python client.py enrollments list
 ```
 
-Use `--base-url` before the resource name if your API is not running at `http://localhost:8000`.
+**Note:** Use `--base-url` before the resource name if your API is not running at `http://localhost:8000`.
+
+---
+
+
+For **Milestone 4** verify that the client works as planned and fix any issues you run into.  You can use the Postman or Insomnia application to help you create Python code or look at other `httpx` examples.
+
+---
+
+
