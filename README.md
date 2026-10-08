@@ -192,13 +192,17 @@ For **Milestone 1** you should be able to start and stop both the `db` and the `
 
 ---
 
-## Loading the Database
+## Milestone 2: Create and Load the Database.
+
+### Use the postgres client to load the data into the Database
 
 After Docker is running, load the schema and seed rows:
 
 ```bash
 docker compose exec -T db psql -U lab05 -d lab05 < sql/v1.sql
 ```
+
+__Note:__ The command `docker compose exec -T db <cmd>` will run the `psql -U lab05 -d lab05 < sql/v1.sql` on the `db` container.  This creates the tables and loads the data in `sql/v1.sql`.  You can use `docker compose exec -T <container> <cmd>` to run commands on the service.
 
 Confirm the tables exist:
 
@@ -211,6 +215,45 @@ Confirm seed data loaded:
 ```bash
 docker compose exec db psql -U lab05 -d lab05 -c "SELECT id, first_name, last_name, major FROM students ORDER BY id;"
 ```
+
+### Use DBeaver to Query the Database
+
+Open up **DBeaver** and create a new Database Connection:
+
+* File -> New -> Database Connection -> Postgres SQL
+* Set the following:
+   * Host: localhost
+   * Database: lab05
+   * Username: lab05
+   * Password: lab05
+* Click Finish
+
+Now you can navigate to the `Schemas/public/Tables` folder and query the tables similar to the Database Workshop from class.
+
+Open a "New SQL Script" and run the following query:
+
+```
+SELECT id, first_name, last_name, major FROM students ORDER BY id;
+```
+
+You should see the following data:
+
+```
+id|first_name|last_name|major           |
+--+----------+---------+----------------+
+ 1|Ada       |Lovelace |Computer Science|
+ 2|Grace     |Hopper   |Computer Science|
+ 3|Katherine |Johnson  |Mathematics     |
+ 4|Dorothy   |Vaughan  |Mathematics     |
+ 5|Alan      |Turing   |Computer Science|
+```
+
+
+---
+
+For **Milestone 2** you should be able to access and run queries on the database through the command line and through DBeaver.
+
+---
 
 ## Querying database
 
