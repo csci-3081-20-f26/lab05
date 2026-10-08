@@ -59,15 +59,50 @@ docker info
 
 The expected workflow for this lab is:
 
-1. Start PostgreSQL and the API with Docker Compose.
-2. Load `sql/v1.sql` into the database.
-3. Confirm the API is healthy.
-4. Build a custom `httpx` CLI client.
-5. Use the CLI client to perform and document CRUD operations.
+* **Milestone 1** - Launch a Database and the API with Docker Compose.
+* **Milestone 2** - Create and Load the Database.
+* **Milestone 3** - Make API Calls.
+* **Milestone 4** - Explore a custom CLI client.
 
 Run all commands from the `lab05` directory unless a step says otherwise.
 
-## Launching Docker
+## Milestone 1: Launch the Database and API using Docker Compose
+
+### Docker Compose
+
+Docker compose is a simple application that allows us to manage a simple server that runs multiple containers simultaneously.  Docker Compose is similar to a Dockerfile, but uses the YAML format for configuration.  We can bring an entire environment up or down with the simple `docker compose up` or `docker compose down` commands.  In this case, we can avoid starting and stoping the services separately.  In general, docker compose allows us to simplify maintanence on a single machine.  For more complicated, multi-server systems for test, stage or production, a container maintanence tool like Kubernates would scale better.  However, Docker Compose is a great option for development environments.
+
+Open up [docker-compose.yaml](docker-compose.yaml).  You will notices that two containers are defined (`db: lab05-postgress` and `api: lab05-fastapi`):
+
+```
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lab05-postgres
+    environment:
+        ...
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ...
+
+  api:
+    image: python:3.12-slim
+    container_name: lab05-fastapi
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+        ...
+
+```
+
+Notice that we can define base images, enable ports, environment variables specific to containers, volumes (persistent storage locations), and other attributes similar to a `Dockerfile`.
+
+When we call `docker compose up` for this application, we are loading up all the containers, specifically the `db` and the `api`.
+
+### Launch the Postgress database and API
 
 Start the database and API:
 
@@ -105,13 +140,13 @@ To stop the lab environment:
 docker compose down
 ```
 
-To remove the database volume and reset all data:
+To remove the database volume and reset all data (Only do this command if you want to restart and remove all persistent database data):
 
 ```bash
 docker compose down -v
 ```
 
-## Injecting Environment
+### Configuring the Environment (If you would like to change the environment settings.)
 
 The FastAPI app reads database settings from environment variables:
 
@@ -150,6 +185,12 @@ DB_PASSWORD=lab05
 ```
 
 If you update `docker-compose.yml`, make sure the `api` service receives these variables and still depends on the healthy `db` service.
+
+---
+
+For **Milestone 1** you should be able to start and stop both the `db` and the `api` with `docker compose` and check the health of the api.  If the `api` is healthy, you have passed this milestone.
+
+---
 
 ## Loading the Database
 
