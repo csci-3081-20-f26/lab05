@@ -40,29 +40,12 @@ python -m pip install -r requirements.txt
 
 If your shell prompt does not show the virtual environment, confirm that `which python` points inside `lab05/.venv/dev`.
 
-## Usage Guide
-
-**TROUBLESHOOTING**: (dev) docker compose up --build 
-Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
-
-**SOLUTION**:
-```
-sudo systemctl start docker
-```
--or-
-```
-open -a docker
-```
-```
-docker info
-```
-
 The expected workflow for this lab is:
 
-* **Milestone 1** - Launch a Database and the API with Docker Compose.
-* **Milestone 2** - Create and Load the Database.
-* **Milestone 3** - Make API Calls.
-* **Milestone 4** - Explore a custom CLI client.
+- **Milestone 1** - Launch a Database and the API with Docker Compose.
+- **Milestone 2** - Create and Load the Database.
+- **Milestone 3** - Make API Calls.
+- **Milestone 4** - Explore a custom CLI client.
 
 Run all commands from the `lab05` directory unless a step says otherwise.
 
@@ -70,9 +53,9 @@ Run all commands from the `lab05` directory unless a step says otherwise.
 
 ### Docker Compose
 
-Docker compose is a simple application that allows us to manage a simple server that runs multiple containers simultaneously.  Docker Compose is similar to a Dockerfile, but uses the YAML format for configuration.  We can bring an entire environment up or down with the simple `docker compose up` or `docker compose down` commands.  In this case, we can avoid starting and stoping the services separately.  In general, docker compose allows us to simplify maintanence on a single machine.  For more complicated, multi-server systems for test, stage or production, a container maintanence tool like Kubernates would scale better.  However, Docker Compose is a great option for development environments.
+Docker compose is a simple application that allows us to manage a simple server that runs multiple containers simultaneously. Docker Compose is similar to a Dockerfile, but uses the YAML format for configuration. We can bring an entire environment up or down with the simple `docker compose up` or `docker compose down` commands. In this case, we can avoid starting and stoping the services separately. In general, docker compose allows us to simplify maintanence on a single machine. For more complicated, multi-server systems for test, stage or production, a container maintanence tool like Kubernates would scale better. However, Docker Compose is a great option for development environments.
 
-Open up [docker-compose.yaml](docker-compose.yaml).  You will notices that two containers are defined (`db: lab05-postgress` and `api: lab05-fastapi`):
+Open up [docker-compose.yaml](docker-compose.yaml). You will notices that two containers are defined (`db: lab05-postgress` and `api: lab05-fastapi`):
 
 ```
 services:
@@ -110,6 +93,32 @@ Start the database and API:
 docker compose up --build
 ```
 
+<details>
+<summary>Troubleshooting</summary>
+
+```text
+(dev) docker compose up --build
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+```
+
+**SOLUTION**:
+
+```
+sudo systemctl start docker
+```
+
+-or-
+
+```
+open -a docker
+```
+
+```
+docker info
+```
+
+</details>
+
 In a second terminal, verify both containers are running:
 
 ```bash
@@ -131,7 +140,7 @@ curl http://localhost:8000/
 Expected response:
 
 ```json
-{"status":"ok"}
+{ "status": "ok" }
 ```
 
 To stop the lab environment:
@@ -188,7 +197,7 @@ If you update `docker-compose.yml`, make sure the `api` service receives these v
 
 ---
 
-For **Milestone 1** you should be able to start and stop both the `db` and the `api` with `docker compose` and check the health of the api.  If the `api` is healthy, you have passed this milestone.
+For **Milestone 1** you should be able to start and stop both the `db` and the `api` with `docker compose` and check the health of the api. If the `api` is healthy, you have passed this milestone.
 
 ---
 
@@ -202,7 +211,7 @@ After Docker is running, load the schema and seed rows:
 docker compose exec -T db psql -U lab05 -d lab05 < sql/v1.sql
 ```
 
-__Note:__ The command `docker compose exec -T db <cmd>` will run the `psql -U lab05 -d lab05 < sql/v1.sql` on the `db` container.  This creates the tables and loads the data in `sql/v1.sql`.  You can use `docker compose exec -T <container> <cmd>` to run commands on the service.
+**Note:** The command `docker compose exec -T db <cmd>` will run the `psql -U lab05 -d lab05 < sql/v1.sql` on the `db` container. This creates the tables and loads the data in `sql/v1.sql`. You can use `docker compose exec -T <container> <cmd>` to run commands on the service.
 
 Confirm the tables exist:
 
@@ -220,13 +229,13 @@ docker compose exec db psql -U lab05 -d lab05 -c "SELECT id, first_name, last_na
 
 Open up **DBeaver** and create a new Database Connection:
 
-* File -> New -> Database Connection -> Postgres SQL
-* Set the following:
-   * Host: localhost
-   * Database: lab05
-   * Username: lab05
-   * Password: lab05
-* Click Finish
+- File -> New -> Database Connection -> Postgres SQL (Standard Driver)
+- Set the following:
+  - Host: localhost
+  - Database: lab05
+  - Username: lab05
+  - Password: lab05
+- Click Finish
 
 Now you can navigate to the `Schemas/public/Tables` folder and query the tables similar to the Database Workshop from class.
 
@@ -248,7 +257,6 @@ id|first_name|last_name|major           |
  5|Alan      |Turing   |Computer Science|
 ```
 
-
 ---
 
 For **Milestone 2** you should be able to access and run queries on the database through the command line and through DBeaver.
@@ -257,28 +265,39 @@ For **Milestone 2** you should be able to access and run queries on the database
 
 ## Milestone 3: Make API Calls
 
-For Milestone 3, we will explore several methods to make API calls to the `api` service container.  The code for the API (the `./app/` folder) uses the repository pattern to handle CRUD (**C**reate, **R**ead, **U**pdate, **D**elete) operations.
+For Milestone 3, we will explore several methods to make API calls to the `api` service container. The code for the API (the `./app/` folder) uses the repository pattern to handle CRUD (**C**reate, **R**ead, **U**pdate, **D**elete) operations.
 
-**Note:** Do not worry too much about how this is implemented.  The code is fairly complicated.  It is not necessary to use the repository pattern, but it is one standard that is implemented in the industry, so it is worth exploring.  In the future, we will create our own APIs and learn how to access databases.  However, at this time, you are welcome to explore the code and make changes, but understanding the code is not a requirement for this lab.
+**Note:** Do not worry too much about how this is implemented. The code is fairly complicated. It is not necessary to use the repository pattern, but it is one standard that is implemented in the industry, so it is worth exploring. In the future, we will create our own APIs and learn how to access databases. However, at this time, you are welcome to explore the code and make changes, but understanding the code is not a requirement for this lab.
 
 ### Use Swagger
 
-We will start by using the FastAPI Swagger environment.  This debugging tool is built into the FastAPI python library.  Since we are using this for our API, it comes for free when we setup our API endpoints.
+We will start by using the FastAPI Swagger environment. This debugging tool is built into the FastAPI python library. Since we are using this for our API, it comes for free when we setup our API endpoints.
 
 Navigate to the following:
-* http://localhost:8000/docs
+
+- http://localhost:8000/docs
 
 You will see a list of web service endpoints you can call.
 
 **Try out the following:**
 
-* `GET /db/students` - List the students in the database.
-* `POST /db/students` - Add a new student.
-* `GET /db/students` - Verify the new student appears.
+- `GET /db/students` - List the students in the database.
+- `POST /db/students` - Add a new student.
+- `GET /db/students` - Verify the new student appears.
+
+**Checking Docker Logs**
+
+What if one of these requests fails, or the API doesn't return what you expected? How do you figure out what went wrong?
+
+That's where Docker logs come in! Even if your Docker terminal looks quiet, PostgreSQL or FastAPI might be reporting useful errors in the background.They are collected in the container logs
+
+You can check those messages by running the following command:
+
+- `docker compose logs -f` — Watch live logs from both containers (PostgreSQL and FastAPI).
 
 **Create a course and add a student:**
 
-Use the Swagger environment to create a new course and enroll the student you just created into the course.  You will need to do the following:
+Use the Swagger environment to create a new course and enroll the student you just created into the course. You will need to do the following:
 
 1. Get the id of the student you created.
 2. Create a course.
@@ -287,7 +306,18 @@ Use the Swagger environment to create a new course and enroll the student you ju
 
 ### Use Curl
 
-You can use the command line to run these commands.  Notice that when you run a method using Swagger, it also gives you the Curl command for calling the web service.  Here are examples below:
+You can use the command line to run these commands. Notice that when you run a method using Swagger, it also gives you the Curl command for calling the web service. Here are examples below:
+
+<details>
+<summary>What is curl?</summary>
+
+`curl` is a command-line tool that lets you communicate with servers using different protocols, such as HTTP, HTTPS, FTP, and SFTP.
+
+For example, when you enter `google.com` in your browser, your browser sends an HTTP request to Google's server and receives a response. `curl` lets you do something similar directly from your terminal, without opening a browser.
+
+The following commands show how to use `curl` to send HTTP requests.
+
+</details>
 
 Listing Students:
 
@@ -324,7 +354,7 @@ For **Milestone 3** show that you created a student and enrolled them in a new c
 
 ## Milestone 4 - Use a Custom Python Client
 
-For Milestone 4, we will use a custom Python CLI client that uses `httpx`.  In the `lab05` directory, there is a `client.py`. You can use this client to call the API using Python.  Explore the code and understand where and how the API is being called.
+For Milestone 4, we will use a custom Python CLI client that uses `httpx`. In the `lab05` directory, there is a `client.py`. You can use this client to call the API using Python. Explore the code and understand where and how the API is being called.
 
 **Try out the client:**
 
@@ -332,7 +362,6 @@ For Milestone 4, we will use a custom Python CLI client that uses `httpx`.  In t
 python client.py students list
 python client.py students create --first-name Mae --last-name Jemison --email mae.jemison@example.edu --major Engineering --credits 64
 python client.py students update 6 --first-name Mae --last-name Jemison --email mae.jemison@example.edu --major "Computer Science" --credits 80 --active true
-python client.py students delete 6
 python client.py courses list
 python client.py enrollments list
 ```
@@ -341,9 +370,6 @@ python client.py enrollments list
 
 ---
 
-
-For **Milestone 4** verify that the client works as planned and fix any issues you run into.  You can use the Postman or Insomnia application to help you create Python code or look at other `httpx` examples.
+For **Milestone 4** verify that the client works as planned and fix any issues you run into. You can use the Postman or Insomnia application to help you create Python code or look at other `httpx` examples.
 
 ---
-
-
