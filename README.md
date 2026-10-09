@@ -227,6 +227,8 @@ docker compose exec db psql -U lab05 -d lab05 -c "SELECT id, first_name, last_na
 
 ### Use DBeaver to Query the Database
 
+If you do not already have DBeaver, the link to the website can be found [here](https://dbeaver.io/).
+
 Open up **DBeaver** and create a new Database Connection:
 
 - File -> New -> Database Connection -> Postgres SQL (Standard Driver)
